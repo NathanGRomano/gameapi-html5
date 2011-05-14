@@ -216,6 +216,14 @@ Playtomic.Log.PlayerLevelQuit = function(levelid)
 	Playtomic.Log.Send("plq/" + levelid);
 }
 
+Playtomic.Log.PlayerLevelRestart = function(levelid)
+{
+	if(!Playtomic.Enabled)
+		return;
+
+	Playtomic.Log.Send("plr/" + levelid);
+}
+
 Playtomic.Log.PlayerLevelFlag = function(levelid)
 {
 	if(!Playtomic.Enabled)
@@ -508,6 +516,31 @@ Playtomic.PlayerLevels.Rate = function(levelid, rating, callback)
 	var failvalue = {Status: 0, ErrorCode: 1};
 
 	Playtomic.PostData("", Playtomic.APIUrl + "playerlevels/rate.aspx?swfid=" + Playtomic.SWFID + "&levelid=" + levelid + "&rating=" + rating + "&js=true", bridge, failvalue);
+}
+
+Playtomic.PlayerLevels.LogStart = function(levelid)
+{
+	Playtomic.Log.PlayerLevelStart(levelid);
+}
+
+Playtomic.PlayerLevels.LogQuit = function(levelid)
+{
+	Playtomic.Log.PlayerLevelQuit(levelid);
+}
+
+Playtomic.PlayerLevels.LogWin = function(levelid)
+{
+	Playtomic.Log.PlayerLevelWin(levelid);
+}
+
+Playtomic.PlayerLevels.LogRetry = function(levelid)
+{
+	Playtomic.Log.PlayerLevelRetry(levelid);
+}
+
+Playtomic.PlayerLevels.Flag = function(levelid)
+{
+	Playtomic.Log.PlayerLevelFlag(levelid);
 }
 
 // -------------------------------------------------------------------------
