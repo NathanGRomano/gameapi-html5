@@ -466,21 +466,21 @@ Playtomic.PlayerLevels.Save = function(level, callback)
 {
 	var postdata = "nothumb=true" +
 					"&playerid=" + level.PlayerId + 
-					"&playersource=" + encodeUri(level.PlayerSource) +
-					"&playername=" + encodeUri(level.PlayerName) + 
-					"&name=" + encodeUri(level.Name);
+					"&playersource=" + encodeURI(level.PlayerSource) +
+					"&playername=" + encodeURI(level.PlayerName) + 
+					"&name=" + encodeURI(level.Name);
 	
 	var c = 0;
 
 	for(var key in level.CustomData)
 	{
 		postdata += "&ckey" + c + "=" + key;
-		postdata += "&cdata" + c + "=" + encodeUri(level.CustomData[key]);
+		postdata += "&cdata" + c + "=" + encodeURI(level.CustomData[key]);
 		c++;
 	}
 
 	postdata += "&customfields=" + c;
-	postdata += "&data=" + encodeUri(level.Data);
+	postdata += "&data=" + encodeURI(level.Data);
 
 	var bridge = function(response)
 	{
@@ -615,7 +615,7 @@ Playtomic.Leaderboards.List = function(table, callback, options)
 	var failvalue = {Status: 0, ErrorCode: 1, Data: {Scores: [], NumScores: 0}};
 	
 	postdata += "&url=" + (global ? "global" : Playtomic.SourceURL);
-	postdata += "&table=" + encodeUri(table);
+	postdata += "&table=" + encodeURI(table);
 	postdata += "&mode=" + mode;
 	postdata += "&numfilters=" + numcustomfilters;
 	postdata += "&page=" + page;
@@ -677,9 +677,9 @@ Playtomic.Leaderboards.Save = function(score, table, callback, options)
 	var allowduplicates = options.allowduplicates || options.allowduplicates == false ? options.allowduplicates : false;
 	var highest = options.highest || options.highest == false ? options.highest : true;
 
-	var postdata = "table=" + encodeUri(table) + 
-					"&name=" + encodeUri(score.Name) + 
-					"&points=" + encodeUri.Points + 
+	var postdata = "table=" + encodeURI(table) + 
+					"&name=" + encodeURI(score.Name) + 
+					"&points=" + encodeURI.Points + 
 					"&allowduplicates=" + (allowduplicates ? "y" : "n") + 
 					"&highest=" + (highest ? "y" : "n") + 
 					"&auth=" + Playtomic.MD5(Playtomic.SourceURL + score.Points.toString()) + 
@@ -698,7 +698,7 @@ Playtomic.Leaderboards.Save = function(score, table, callback, options)
 		for(var key in score.CustomData)
 		{
 			postdata += "&ckey" + c + "=" + key;
-			postdata += "&cdata" + c + "=" + encodeUri(level.CustomData[key]);
+			postdata += "&cdata" + c + "=" + encodeURI(level.CustomData[key]);
 			c++;
 		}
 	}
@@ -721,8 +721,8 @@ Playtomic.Leaderboards.Save = function(score, table, callback, options)
 Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoptions, listoptions)
 {
 	// common data
-	var postdata = "table=" + encodeUri(table) + 
-					"&highest=" + (highest ? "y" : "n");
+	var postdata = "table=" + encodeURI(table) + 
+			"&highest=" + (highest ? "y" : "n");
 	
 	// save data
 	if(saveoptions == null)
@@ -732,8 +732,8 @@ Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoption
 	var highest = saveoptions.highest || saveoptions.highest == false ? saveoptions.highest : true;
 	var facebook = saveoptions.facebook || saveoptions.facebook == false ? saveoptions.facebook : false;
 
-	var postdata = 	"&name=" + encodeUri(score.Name) + 
-					"&points=" + encodeUri.Points + 
+	var postdata = 	"&name=" + encodeURI(score.Name) + 
+					"&points=" + encodeURI.Points + 
 					"&allowduplicates=" + (allowduplicates ? "y" : "n") + 
 					"&auth=" + Playtomic.MD5(Playtomic.SourceURL + score.Points.toString()) + 
 					"&url=" + Playtomic.SourceURL
@@ -751,7 +751,7 @@ Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoption
 		for(var key in score.CustomData)
 		{
 			postdata += "&ckey" + c + "=" + key;
-			postdata += "&cdata" + c + "=" + encodeUri(level.CustomData[key]);
+			postdata += "&cdata" + c + "=" + encodeURI(level.CustomData[key]);
 			c++;
 		}
 	}
@@ -813,6 +813,42 @@ Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoption
 	}
 
 	var failvalue = {Status: 0, ErrorCode: 1, Data: {Scores: [], NumScores: 0}};
+
+	Playtomic.PostData(postdata, url, bridge, failvalue);
+}
+
+Playtomic.Leaderboards.CreatePrivateLeaderboard = function(table, highest, permalink, callback)
+{
+	var postdata = "table=" + encodeURI(table) + 
+			"&highest=" + (highest ? "y" : "n") + 
+			"&permalink=" + encodeURI(permalink);
+			
+	var bridge = function(response)
+	{
+		if(callback == null)
+			return;
+
+		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data { Name: table, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
+	}
+
+	var failvalue = {Status: 0, ErrorCode: 1, Data: {Name: "", RealName: "", Permalink: "", Bitly: ""}};
+
+	Playtomic.PostData(postdata, Playtomic.APIUrl + "v2/leaderboards/create.aspx?swfid=" + Playtomic.SWFID + "&js=y" + , bridge, failvalue);
+}
+
+Playtomic.Leaderboards.LoadPrivateLeaderboard = function(tableid, callback)
+{
+	var postdata = "tableid=" + tableid;
+	
+	var bridge = function(response)
+	{
+		if(callback == null)
+			return;
+
+		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data { Name: response.Name, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
+	}
+
+	var failvalue = {Status: 0, ErrorCode: 1, Data: {Name: "", RealName: "", Permalink: "", Bitly: ""}};
 
 	Playtomic.PostData(postdata, url, bridge, failvalue);
 }
