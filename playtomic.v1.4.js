@@ -828,7 +828,7 @@ Playtomic.Leaderboards.CreatePrivateLeaderboard = function(table, highest, perma
 		if(callback == null)
 			return;
 
-		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data { TableId: response.TableId, Name: table, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
+		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data: { TableId: response.TableId, Name: table, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
 	}
 
 	var failvalue = {Status: 0, ErrorCode: 1, Data: {Name: "", RealName: "", Permalink: "", Bitly: ""}};
