@@ -715,7 +715,7 @@ Playtomic.Leaderboards.Save = function(score, table, callback, options)
 
 	var failvalue = {Status: 0, ErrorCode: 1, Data: {}};
 
-	Playtomic.PostData(postdata, Playtomic.APIUrl + "v2/leaderboards/save.aspx?swfid=" + Playtomic.SWFID + "&js=y" + , bridge, failvalue);
+	Playtomic.PostData(postdata, Playtomic.APIUrl + "v2/leaderboards/save.aspx?swfid=" + Playtomic.SWFID + "&js=y", bridge, failvalue);
 }
 
 Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoptions, listoptions)
@@ -828,7 +828,7 @@ Playtomic.Leaderboards.CreatePrivateLeaderboard = function(table, highest, perma
 		if(callback == null)
 			return;
 
-		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data { Name: table, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
+		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data { TableId: response.TableId, Name: table, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
 	}
 
 	var failvalue = {Status: 0, ErrorCode: 1, Data: {Name: "", RealName: "", Permalink: "", Bitly: ""}};

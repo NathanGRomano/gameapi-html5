@@ -773,7 +773,7 @@ Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoption
 	postdata += "&numfilters=" + numcustomfilters;
 	postdata += "&perpage=" + perpage;
 	
-	var numcustomfilters:int = 0;
+	var numcustomfilters = 0;
 	
 	if(customfilters != null)
 	{
