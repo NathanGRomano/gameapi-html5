@@ -777,7 +777,7 @@ Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoption
 	
 	if(customfilters != null)
 	{
-		for(var key:String in customfilters)
+		for(var key in customfilters)
 		{
 			postdata["lkey" + numcustomfilters] = key;
 			postdata["ldata" + numcustomfilters] = escape(customfilters[key]);
