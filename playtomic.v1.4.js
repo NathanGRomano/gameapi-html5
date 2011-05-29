@@ -794,7 +794,7 @@ Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoption
 	{
 		if(friendslist.length > 0)
 		{
-			postdata += friendslist.join(",") : "";
+			postdata += friendslist.join(",");
 		}
 		
 		url = Playtomic.APIUrl + "v2/leaderboards/saveandlistfb.aspx?swfid=" + Playtomic.SWFID + "&js=y", bridge
