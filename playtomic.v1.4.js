@@ -833,7 +833,7 @@ Playtomic.Leaderboards.CreatePrivateLeaderboard = function(table, highest, perma
 
 	var failvalue = {Status: 0, ErrorCode: 1, Data: {Name: "", RealName: "", Permalink: "", Bitly: ""}};
 
-	Playtomic.PostData(postdata, Playtomic.APIUrl + "v2/leaderboards/create.aspx?swfid=" + Playtomic.SWFID + "&js=y" + , bridge, failvalue);
+	Playtomic.PostData(postdata, Playtomic.APIUrl + "v2/leaderboards/create.aspx?swfid=" + Playtomic.SWFID + "&js=y", bridge, failvalue);
 }
 
 Playtomic.Leaderboards.LoadPrivateLeaderboard = function(tableid, callback)
