@@ -715,7 +715,7 @@ Playtomic.Leaderboards.Save = function(score, table, callback, options)
 
 	var failvalue = {Status: 0, ErrorCode: 1, Data: {}};
 
-	Playtomic.PostData(postdata, Playtomic.APIUrl + "v2/leaderboards/save.aspx?swfid=" + Playtomic.SWFID + "&js=y" + , bridge, failvalue);
+	Playtomic.PostData(postdata, Playtomic.APIUrl + "v2/leaderboards/save.aspx?swfid=" + Playtomic.SWFID + "&js=y", bridge, failvalue);
 }
 
 Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoptions, listoptions)
