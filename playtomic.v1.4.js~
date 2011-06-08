@@ -773,11 +773,11 @@ Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoption
 	postdata += "&numfilters=" + numcustomfilters;
 	postdata += "&perpage=" + perpage;
 	
-	var numcustomfilters:int = 0;
+	var numcustomfilters = 0;
 	
 	if(customfilters != null)
 	{
-		for(var key:String in customfilters)
+		for(var key in customfilters)
 		{
 			postdata["lkey" + numcustomfilters] = key;
 			postdata["ldata" + numcustomfilters] = escape(customfilters[key]);
@@ -794,7 +794,7 @@ Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoption
 	{
 		if(friendslist.length > 0)
 		{
-			postdata += friendslist.join(",") : "";
+			postdata += friendslist.join(",");
 		}
 		
 		url = Playtomic.APIUrl + "v2/leaderboards/saveandlistfb.aspx?swfid=" + Playtomic.SWFID + "&js=y", bridge
@@ -828,12 +828,12 @@ Playtomic.Leaderboards.CreatePrivateLeaderboard = function(table, highest, perma
 		if(callback == null)
 			return;
 
-		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data { TableId: response.TableId, Name: table, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
+		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data: { TableId: response.TableId, Name: table, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
 	}
 
 	var failvalue = {Status: 0, ErrorCode: 1, Data: {Name: "", RealName: "", Permalink: "", Bitly: ""}};
 
-	Playtomic.PostData(postdata, Playtomic.APIUrl + "v2/leaderboards/create.aspx?swfid=" + Playtomic.SWFID + "&js=y" + , bridge, failvalue);
+	Playtomic.PostData(postdata, Playtomic.APIUrl + "v2/leaderboards/create.aspx?swfid=" + Playtomic.SWFID + "&js=y", bridge, failvalue);
 }
 
 Playtomic.Leaderboards.LoadPrivateLeaderboard = function(tableid, callback)
@@ -845,7 +845,7 @@ Playtomic.Leaderboards.LoadPrivateLeaderboard = function(tableid, callback)
 		if(callback == null)
 			return;
 
-		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data { Name: response.Name, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
+		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data: { Name: response.Name, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
 	}
 
 	var failvalue = {Status: 0, ErrorCode: 1, Data: {Name: "", RealName: "", Permalink: "", Bitly: ""}};
