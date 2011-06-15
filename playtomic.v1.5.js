@@ -46,6 +46,69 @@ Playtomic.ScriptHolder = null;
 Playtomic.Beacon = new Image();
 
 // -------------------------------------------------------------------------
+// RESPONSE
+// -------------------------------------------------------------------------
+Playtomic.Response = function(status, errorcode, data)
+{
+	this.Success = status == 1;
+	this.ErrorCode = errorcode;
+	this.ErrorMessage = Playtomic.ErrorMessage(errorcode);
+	this.Data = data;
+}
+
+Playtomic.GeneralFailure = function()
+{
+	return Playtomic.Response(0, 1);
+}
+
+Playtomic.ErrorMessage = function(errorcode)
+{
+	if(errorcode == 0)
+			
+		return "Nothing went wrong!";
+			
+		
+
+	switch(errorcode)
+		
+	{
+			
+		case 1: return "General error, this typically means the player is unable to connect to the Playtomic servers";	
+		case 2: return "Invalid game credentials. Make sure you use your SWFID and GUID from the `API` section in the dashboard.";
+				
+		//GeoIP Errors	
+		case 100: return "GeoIP API has been disabled. This may occur if your game is faulty or overwhelming the Playtomic servers.";
+			
+		//Leaderboard Errors
+		case 200: return "Leaderboard API has been disabled. This may occur if your game is faulty or overwhelming the Playtomic servers.";
+		case 201: return "The source URL or name weren't provided when saving a score. Make sure the player specifies a name and the game is initialized before anything else using the code in the `Set your game up` section.";
+		case 202: return "Invalid auth key. You should not see this normally, players might if they tamper with your game.";
+		case 203: return "No Facebook user id on a score specified as a Facebook submission.";
+			
+		//GameVars Errors
+		case 300: return "GameVars API has been disabled. This may occur if your game is faulty or overwhelming the Playtomic servers.";
+			
+			
+		//LevelSharing Errors
+		case 400: return "Level sharing API has been disabled. This may occur if your game is faulty or overwhelming the Playtomic servers.";
+		case 401: return "Invalid rating value (must be 1 - 10).";
+		case 402: return "Player has already rated that level.";
+		case 403: return "The level name wasn't provided when saving a level.";
+		case 404: return "Invalid image auth. You should not see this normally, players might if they tamper with your game.";
+		case 405: return "Invalid image auth (again). You should not see this normally, players might if they tamper with your game.";
+			
+		//Data API Errors
+		case 500: return "Data API has been disabled. This may occur if the Data API is not enabled for your game, or your game is faulty or overwhelming the Playtomic servers.";
+		
+	}
+			
+		
+		
+	return "An unknown error of type " + code + " occurred.  Check the API docs at http://playtomic.com/api";
+
+}
+
+// -------------------------------------------------------------------------
 // LOGGING
 // -------------------------------------------------------------------------
 Playtomic.Log = {};
@@ -85,7 +148,7 @@ Playtomic.Log.View = function(swfid, guid, defaulturl)
 		return;
 	}
 
-	Playtomic.APIUrl = "http://g" + Playtomic.GUID + ".api.playtomic.com/";
+	Playtomic.APIUrl = "http://g" + Playtomic.GUID + ".api5.playtomic.com/";
 
 	// Create our script holder
 	Playtomic.ScriptHolder = document.createElement("div");
@@ -513,6 +576,8 @@ Playtomic.Link.Open = function(url, name, group)
 // LEVEL SHARING
 // -------------------------------------------------------------------------
 Playtomic.PlayerLevels = {};
+Playtomic.PlayerLevels.POPULAR = "popular";
+Playtomic.PlayerLevels.NEWEST = "newest";
 
 Playtomic.PlayerLevels.Save = function(level, callback)
 {
@@ -539,10 +604,10 @@ Playtomic.PlayerLevels.Save = function(level, callback)
 		if(callback == null)
 			return;
 
-		callback(response.Data.LevelId, {Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(response.Data.LevelId, new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: {LevelId: ""}};
+	var failvalue = new Playtomic.Response(0, 1, {LevelId: ""});
 
 	Playtomic.PostData(postdata, Playtomic.APIUrl + "playerlevels/save.aspx?swfid=" + Playtomic.SWFID + "&js=true", bridge, failvalue);
 }
@@ -554,10 +619,10 @@ Playtomic.PlayerLevels.Load = function(levelid, callback)
 		if(callback == null)
 			return;
 
-		callback(response.Data, {Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(response.Data, new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: {LevelId: "", PlayerName: "", PlayerId: "", Name: "", Score: 0, Votes: 0, Plays: 0, Rating: 0, Data: "", Thumbnail: "", CustomData: {}}};
+	var failvalue = new Playtomic.Response(0, 1, {LevelId: "", PlayerName: "", PlayerId: "", Name: "", Score: 0, Votes: 0, Plays: 0, Rating: 0, Data: "", Thumbnail: "", CustomData: {}});
 
 	Playtomic.PostData("", Playtomic.APIUrl + "playerlevels/load.aspx?swfid=" + Playtomic.SWFID + "&levelid=" + levelid + "&js=true", bridge, failvalue);
 }
@@ -579,10 +644,10 @@ Playtomic.PlayerLevels.List = function(callback, options)
 		if(callback == null)
 			return;
 
-		callback(response.Data.Levels, response.Data.NumLevels, {Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(response.Data.Levels, response.Data.NumLevels, new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: { NumLevels: 0, Levels: []}};
+	var failvalue = new Playtomic.Response(0, 1, { NumLevels: 0, Levels: []});
 
 	Playtomic.PostData("", Playtomic.APIUrl + "playerlevels/list.aspx?swfid=" + Playtomic.SWFID + "&js=true&mode=" + mode + "&page=" + page + "&perpage=" + perpage + "&data=" + data + "&datemin=" + datemin + "&datemax=" + datemax, bridge, failvalue);
 }
@@ -594,10 +659,10 @@ Playtomic.PlayerLevels.Rate = function(levelid, rating, callback)
 		if(callback == null)
 			return;
 
-		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1};
+	var failvalue = new Playtomic.Response(0, 1);
 
 	Playtomic.PostData("", Playtomic.APIUrl + "playerlevels/rate.aspx?swfid=" + Playtomic.SWFID + "&levelid=" + levelid + "&rating=" + rating + "&js=true", bridge, failvalue);
 }
@@ -632,6 +697,12 @@ Playtomic.PlayerLevels.Flag = function(levelid)
 // -------------------------------------------------------------------------
 Playtomic.Leaderboards = {};
 
+Playtomic.Leaderboards.TODAY = "today";
+Playtomic.Leaderboards.LAST7DAYS = "last7days";
+Playtomic.Leaderboards.LAST30DAYS = "last30days";
+Playtomic.Leaderboards.ALLTIME = "alltime";
+Playtomic.Leaderboards.NEWEST = "newest";
+
 Playtomic.Leaderboards.List = function(table, callback, options)
 {
 	if(options == null)
@@ -650,7 +721,7 @@ Playtomic.Leaderboards.List = function(table, callback, options)
 	{
 		if(callback == null)
 			return;
-
+		
 		Playtomic.Leaderboards.ListComplete(response, callback);
 	}
 
@@ -664,7 +735,7 @@ Playtomic.Leaderboards.List = function(table, callback, options)
 		numcustomfilters++;
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: {Scores: [], NumScores: 0}};
+	var failvalue = new Playtomic.Response(0, 1, {Scores: [], NumScores: 0});
 	
 	postdata += "&url=" + (global ? "global" : Playtomic.SourceURL);
 	postdata += "&table=" + encodeURI(table);
@@ -696,7 +767,7 @@ Playtomic.Leaderboards.ListComplete = function(response, callback)
 {
 	if(callback == null)
 		return;
-
+	
 	var scores = [];
 	var arr = response.Data.Scores;
 
@@ -718,7 +789,7 @@ Playtomic.Leaderboards.ListComplete = function(response, callback)
 		scores[i] = score;
 	}
 
-	callback(scores, response.Data.NumScores, {Success: response.Status == 1, ErrorCode: response.ErrorCode});
+	callback(scores, response.Data.NumScores, new Playtomic.Response(response.Status, response.ErrorCode));
 }
 
 Playtomic.Leaderboards.Save = function(score, table, callback, options)
@@ -730,15 +801,15 @@ Playtomic.Leaderboards.Save = function(score, table, callback, options)
 	var highest = options.highest || options.highest == false ? options.highest : true;
 
 	var postdata = "table=" + encodeURI(table) + 
-					"&name=" + encodeURI(score.Name) + 
-					"&points=" + encodeURI.Points + 
-					"&allowduplicates=" + (allowduplicates ? "y" : "n") + 
-					"&highest=" + (highest ? "y" : "n") + 
-					"&auth=" + Playtomic.MD5(Playtomic.SourceURL + score.Points.toString()) + 
-					"&url=" + Playtomic.SourceURL
+			"&name=" + encodeURI(score.Name) + 
+			"&points=" + score.Points.toString() + 
+			"&allowduplicates=" + (allowduplicates ? "y" : "n") + 
+			"&highest=" + (highest ? "y" : "n") + 
+			"&auth=" + Playtomic.MD5(Playtomic.SourceURL + score.Points.toString()) + 
+			"&url=" + Playtomic.SourceURL;
 	
 
-	if(score.FBUserId != "")
+	if(score.FBUserId != null && score.FBUserId != "")
 	{
 		postdata += "&fbuserid=" + score.FBUserId;
 	}
@@ -750,7 +821,7 @@ Playtomic.Leaderboards.Save = function(score, table, callback, options)
 		for(var key in score.CustomData)
 		{
 			postdata += "&ckey" + c + "=" + key;
-			postdata += "&cdata" + c + "=" + encodeURI(level.CustomData[key]);
+			postdata += "&cdata" + c + "=" + encodeURI(score.CustomData[key]);
 			c++;
 		}
 	}
@@ -762,10 +833,10 @@ Playtomic.Leaderboards.Save = function(score, table, callback, options)
 		if(callback == null)
 			return;
 
-		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: {}};
+	var failvalue = new Playtomic.Response(0, 1, {})
 
 	Playtomic.PostData(postdata, Playtomic.APIUrl + "v2/leaderboards/save.aspx?swfid=" + Playtomic.SWFID + "&js=y", bridge, failvalue);
 }
@@ -785,10 +856,10 @@ Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoption
 	var facebook = saveoptions.facebook || saveoptions.facebook == false ? saveoptions.facebook : false;
 
 	var postdata = 	"&name=" + encodeURI(score.Name) + 
-					"&points=" + encodeURI.Points + 
-					"&allowduplicates=" + (allowduplicates ? "y" : "n") + 
-					"&auth=" + Playtomic.MD5(Playtomic.SourceURL + score.Points.toString()) + 
-					"&url=" + Playtomic.SourceURL
+			"&points=" + score.Points + 
+			"&allowduplicates=" + (allowduplicates ? "y" : "n") + 
+			"&auth=" + Playtomic.MD5(Playtomic.SourceURL + score.Points.toString()) + 
+			"&url=" + Playtomic.SourceURL;
 	
 
 	if(score.FBUserId != null && score.FBUserId != "")
@@ -864,7 +935,7 @@ Playtomic.Leaderboards.SaveAndList = function(score, table, callback, saveoption
 		Playtomic.Leaderboards.ListComplete(response, callback);
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: {Scores: [], NumScores: 0}};
+	var failvalue = new Playtomic.Response(0, 1, {Scores: [], NumScores: 0});
 
 	Playtomic.PostData(postdata, url, bridge, failvalue);
 }
@@ -880,10 +951,10 @@ Playtomic.Leaderboards.CreatePrivateLeaderboard = function(table, highest, perma
 		if(callback == null)
 			return;
 
-		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data: { TableId: response.TableId, Name: table, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
+		callback(new Playtomic.Response(response.Status, response.ErrorCode, { TableId: response.TableId, Name: table, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName}));
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: {Name: "", RealName: "", Permalink: "", Bitly: ""}};
+	var failvalue = new Playtomic.Response(0, 1, {Name: "", RealName: "", Permalink: "", Bitly: ""});
 
 	Playtomic.PostData(postdata, Playtomic.APIUrl + "v2/leaderboards/create.aspx?swfid=" + Playtomic.SWFID + "&js=y", bridge, failvalue);
 }
@@ -900,7 +971,7 @@ Playtomic.Leaderboards.LoadPrivateLeaderboard = function(tableid, callback)
 		callback({Success: response.Status == 1, ErrorCode: response.ErrorCode, Data: { Name: response.Name, Permalink: response.Permalink, Bitly: response.Bitly, RealName: response.RealName} });
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: {Name: "", RealName: "", Permalink: "", Bitly: ""}};
+	var failvalue = new Playtomic.Response(0, 1, {Name: "", RealName: "", Permalink: "", Bitly: ""});
 
 	Playtomic.PostData(postdata, url, bridge, failvalue);
 }
@@ -954,10 +1025,10 @@ Playtomic.Data.General = function(type, callback, day, month, year)
 			return;
 
 		var data = {Name: type, Day: day, Month: month, Year: year, Value: response.Data.Value};
-		callback(data, {Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(data, new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCore: 1, Data: {Value: 0}};
+	var failvalue = new Playtomic.Response(0, 1, {Value: 0});
 
 	Playtomic.PostData("", Playtomic.APIUrl + "data/" + type + ".aspx?swfid=" + Playtomic.SWFID + "&js=true&day=" + day + "&month=" + month + "&year=" + year, bridge, failvalue);
 }
@@ -977,10 +1048,10 @@ Playtomic.Data.CustomMetric = function(metric, callback, options)
 			return;
 
 		var data = {Name: "CustomMetric", Metric: metric, Day: day, Month: month, Year: year, Value: response.Data.Value};
-		callback(data, {Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(data, new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCore: 1, Data: {Value: 0}};
+	var failvalue = new Playtomic.Response(0, 1, {Value: 0});
 
 	Playtomic.PostData("", Playtomic.APIUrl + "data/custommetric.aspx?swfid=" + Playtomic.SWFID + "&metric=" + escape(metric) + "&js=true&day=" + day + "&month=" + month + "&year=" + year, bridge, failvalue);
 }
@@ -1000,10 +1071,10 @@ Playtomic.Data.LevelCounterMetric = function(metric, level, callback, options)
 			return;
 
 		var data = {Name: "LevelCounterMetric", Metric: metric, Level: level, Day: day, Month: month, Year: year, Value: response.Data.Value};
-		callback(data, {Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(data, new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: {Value: 0}};
+	var failvalue = new Playtomic.Response(0, 1, {Value: 0});
 
 	Playtomic.Data.LevelMetric("counter", metric, level, bridge, day, month, year, failvalue);
 }
@@ -1023,10 +1094,10 @@ Playtomic.Data.LevelRangedMetric = function(metric, level, callback, options)
 			return;
 
 		var data = {Name: "LevelRangedMetric", Metric: metric, Level: level, Day: day, Month: month, Year: year, Data: response.Data.Values};
-		callback(data, {Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(data, new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: {Values: []}};
+	var failvalue = new Playtomic.Response(0, 1, {Values: []});;
 
 	Playtomic.Data.LevelMetric("ranged", metric, level, bridge, day, month, year, failvalue);
 }
@@ -1046,10 +1117,10 @@ Playtomic.Data.LevelAverageMetric = function(metric, level, callback, options)
 			return;
 
 		var data = {Name: "LevelAverageMetric", Metric: metric, Level: level, Day: day, Month: month, Year: year, Min: response.Data.Min, Max: response.Data.Max, Average: response.Data.Average, Total: response.Data.Total};
-		callback(data, {Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(data, new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: {Min: 0, Max: 0, Average: 0}};
+	var failvalue = new Playtomic.Response(0, 1, {Min: 0, Max: 0, Average: 0});
 
 	Playtomic.Data.LevelMetric("average", metric, level, bridge, day, month, year, failvalue);
 }
@@ -1070,10 +1141,10 @@ Playtomic.GeoIP.Lookup = function(callback)
 		if(callback == null)
 			return;
 
-		callback(response.Data, {Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(response.Data, new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: {Code: "N/A", Country: "UNKNOWN"}};
+	var failvalue = new Playtomic.Response(0, 1, {Code: "N/A", Country: "UNKNOWN"});
 
 	Playtomic.PostData("", Playtomic.APIUrl + "geoip/lookup.aspx?swfid=" + Playtomic.SWFID + "&js=true", bridge, failvalue);
 }
@@ -1097,10 +1168,10 @@ Playtomic.GameVars.Load = function(callback)
 		for(var i=0; i< vars.length; i++)
 			obj[vars[i].Name] =  vars[i].Value;
 
-		callback(obj, {Success: response.Status == 1, ErrorCode: response.ErrorCode});
+		callback(obj, new Playtomic.Response(response.Status, response.ErrorCode));
 	}
 
-	var failvalue = {Status: 0, ErrorCode: 1, Data: []};
+	var failvalue = new Playtomic.Response(0, 1, [])
 
 	Playtomic.PostData("", Playtomic.APIUrl + "gamevars/load.aspx?swfid=" + Playtomic.SWFID + "&js=true", bridge, failvalue);
 }
@@ -1116,7 +1187,6 @@ Playtomic.PostData = function(postdata, script, callback, failvalue)
 	if(window.XDomainRequest)
 	{
 		request = new XDomainRequest(); 
-		request.timeout = 4000;
 		request.onerror = function()
 		{
 			callback(failvalue);
