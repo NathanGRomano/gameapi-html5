@@ -198,7 +198,7 @@ var Playtomic = {};
 				if(BaseUrl.indexOf("/") > -1)
 					BaseUrl = BaseUrl.substring(0, BaseUrl.indexOf("/"));
 
-				URLStub = "http://g" + GUID + ".apitest.playtomic.com/";
+				URLStub = "http://g" + GUID + ".api.playtomic.com/";
 				URLTail = "swfid=" + SWFID + "&js=y";	
 				
 				// section & actions
