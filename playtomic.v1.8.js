@@ -198,6 +198,10 @@ var Playtomic = {};
 						
 				// game & api urls
 				SourceUrl = defaulturl ? defaulturl : document.location;
+				
+				if(SourceUrl == null)
+					SourceUrl = "http://localhost/";
+				
 				BaseUrl = SourceUrl.split("://")[1];
 				
 				if(BaseUrl.indexOf("/") > -1)
