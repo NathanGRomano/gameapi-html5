@@ -1673,7 +1673,7 @@ var Playtomic = {};
 			for(var pointer in pobject.Pointers)
 			{
 				postdata["pointer" + i + "fieldname"] = pointer.FieldName;
-				postdata["pointer" + i + "classname"] = pointer.PObject.ClassName;
+				postdata["pointer" + i + "classname"] = pointer.PObject.FieldName;
 				postdata["pointer" + i + "id"] = pointer.PObject.ObjectId;
 				i++;
 			}
@@ -1712,7 +1712,7 @@ var Playtomic = {};
 					
 					var pchild = new Playtomic.PFObject();
 					pchild.ObjectId = postdata["pointer" + n + "id"];
-					pchild.ClassName = postdata["pointer" + n + "classname"];
+					pchild.ClassName = postdata["pointer" + n + "fieldname"];
 					
 					
 					po.Pointers.push(new Playtomic.PFPointer(postdata[key], pchild));
