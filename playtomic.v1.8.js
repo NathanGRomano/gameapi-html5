@@ -1667,12 +1667,15 @@ var Playtomic = {};
 
 			for(var key in pobject.Data)
 				postdata["data" + key] = pobject.Data[key];
+
+			var i = 0;
 	
 			for(var pointer in pobject.Pointers)
 			{
 				postdata["pointer" + i + "fieldname"] = pointer.FieldName;
 				postdata["pointer" + i + "classname"] = pointer.PObject.ClassName;
 				postdata["pointer" + i + "id"] = pointer.PObject.ObjectId;
+				i++;
 			}
 			
 			return postdata;
