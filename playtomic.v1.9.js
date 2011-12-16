@@ -58,6 +58,7 @@ var Playtomic = {};
 		var Request = new LogRequest();
 		var Plays = 0;
 		var Pings = 0;
+		var PTime = 0;
 		var FirstPing = true;
 		var Frozen = false;
 		var FrozenQueue = [];
@@ -65,6 +66,7 @@ var Playtomic = {};
 		var LevelCounters = [];
 		var LevelAverages = [];
 		var LevelRangeds = [];
+		var PData = {};
 		
 		/**
 		 * Adds an event and if ready or a view or not queuing, sends it
@@ -94,20 +96,70 @@ var Playtomic = {};
 		}
 		
 		/**
+		 * Sends a PEvent
+		 * @param	params	The data to send
+		 * @param	location	The location of the player
+		 */	
+		function SendPEvent(params, location)
+		{		
+			if(location != null)
+			{
+				PData.locationbefore = PData.location;
+				PData.location = location;
+			}
+			
+			PData.timebefore = PData.time;
+			PData.time = PTime;
+			PData.eventnum++;
+			PData.params = params;
+			
+			for(var x in Playtomic.PersistantParams)
+				PData.params[x] = Playtomic.PersistantParams[x];
+			
+			var pda = "data=" + Escape(Encode.Base64(JSON.stringify(PData)));
+			var request = window.XDomainRequest ? new XDomainRequest() : new XMLHttpRequest(); 
+			var url = URLStub + "tracker/p.aspx?" + URLTail + "&" + Math.random() + "Z";
+			
+			request.onerror = function()
+			{
+				complete(callback, postdata, {}, Response(0, 1));
+			};
+
+			request.onload = function()
+			{
+			};
+			
+			if(window.XDomainRequest)
+			{
+				request.open("POST", url);
+			}
+			else
+			{
+				request.open("POST", url, true);
+			}
+			
+			request.send(pda);
+		}
+		
+		/**
 		 * Increases the play time and triggers events being sent
 		 */
 		function Ping()
 		{
+			PTime++;
+			
 			if(!Enabled)
 				return;
-				
-			Pings++;
-			Send("t/" + (FirstPing ? "y" : "n") + "/" + Pings, true);
-				
-			if(FirstPing)
+			
+			if(PTime == 60)
 			{
-				setInterval(Ping, 30000);
-				FirstPing = false;
+				Pings = 1;
+				Send("t/y/1", true);						
+			}
+			else if(PTime > 60 && PTime % 30 == 0)
+			{
+				Pings++;
+				Send("t/n/" + Pings, true);
 			}
 		}
 
@@ -169,10 +221,101 @@ var Playtomic = {};
 				end = document.cookie.length;
 
 			return unescape(document.cookie.substring(start, end));
-		}	
+		}
+		
+		/*
+		 * PEvent data
+		 */ 
+		Playtomic.PersistantParams = {};
+		Playtomic.PEventsEnabled = false;
+		
+		/**
+		 * Initializes the API without sending a View.  This is for page-based sites and applications without a single persistant page
+		 * @param	swfid		Your game id
+		 * @param	guid		Your game guid
+		 * @param	apikey		Your game API key
+		 * @param	defaulturl	The default url
+		 */
+		Playtomic.Initialize = function(swfid, guid, apikey, defaulturl)
+		{
+			// game credentials
+			if(SWFID > 0)
+				return;
+
+			SWFID = swfid;
+			GUID = guid;
+			Enabled = true;
+
+			if(SWFID == 0 || GUID == "")
+			{
+				Enabled = false;
+				return;
+			}
+					
+			// game & api urls
+			SourceUrl = defaulturl ? defaulturl.toString() : document.location.toString();
+			
+			if(SourceUrl == null || SourceUrl == "" || SourceUrl.indexOf("http://") != 0)
+				SourceUrl = "http://localhost/";
+			
+			BaseUrl = SourceUrl.split("://")[1];
+			
+			if(BaseUrl.indexOf("/") > -1)
+				BaseUrl = BaseUrl.substring(0, BaseUrl.indexOf("/"));
+
+			URLStub = "http://g" + GUID + ".api.playtomic.com/";
+			URLTail = "swfid=" + SWFID + "&js=y";	
+			
+			// section & actions
+			SECTIONS = {
+				"gamevars": Encode.MD5("gamevars-" + apikey),
+				"geoip": Encode.MD5("geoip-" + apikey),
+				"leaderboards": Encode.MD5("leaderboards-" + apikey),
+				"playerlevels": Encode.MD5("playerlevels-" + apikey),
+				"data": Encode.MD5("data-" + apikey),
+				"parse": Encode.MD5("parse-" + apikey)						
+			};
+			
+			ACTIONS = {
+				"gamevars-load": Encode.MD5("gamevars-load-" + apikey),
+				"geoip-lookup": Encode.MD5("geoip-lookup-" + apikey),
+				"leaderboards-list": Encode.MD5("leaderboards-list-" + apikey),
+				"leaderboards-listfb": Encode.MD5("leaderboards-listfb-" + apikey),
+				"leaderboards-save": Encode.MD5("leaderboards-save-" + apikey),
+				"leaderboards-savefb": Encode.MD5("leaderboards-savefb-" + apikey),
+				"leaderboards-saveandlist": Encode.MD5("leaderboards-saveandlist-" + apikey),
+				"leaderboards-saveandlistfb": Encode.MD5("leaderboards-saveandlistfb-" + apikey),
+				"leaderboards-createprivateleaderboard": Encode.MD5("leaderboards-createprivateleaderboard-" + apikey),
+				"leaderboards-loadprivateleaderboard": Encode.MD5("leaderboards-loadprivateleaderboard-" + apikey),
+				"playerlevels-save": Encode.MD5("playerlevels-save-" + apikey),
+				"playerlevels-load": Encode.MD5("playerlevels-load-" + apikey),
+				"playerlevels-list": Encode.MD5("playerlevels-list-" + apikey),
+				"playerlevels-rate": Encode.MD5("playerlevels-rate-" + apikey),
+				"data-views": Encode.MD5("data-views-" + apikey),
+				"data-plays": Encode.MD5("data-plays-" + apikey),
+				"data-playtime": Encode.MD5("data-playtime-" + apikey),
+				"data-custommetric": Encode.MD5("data-custommetric-" + apikey),
+				"data-levelcountermetric": Encode.MD5("data-levelcountermetric-" + apikey),
+				"data-levelrangedmetric": Encode.MD5("data-levelrangedmetric-" + apikey),
+				"data-levelaveragemetric": Encode.MD5("data-levelaveragemetric-" + apikey),
+				"parse-save": Encode.MD5("parse-save-" + apikey),
+				"parse-delete": Encode.MD5("parse-delete-" + apikey),
+				"parse-load": Encode.MD5("parse-load-" + apikey),
+				"parse-find": Encode.MD5("parse-find-" + apikey)	
+			};
+			
+			// Create our script holder
+			ScriptHolder = document.createElement("div");
+			ScriptHolder.style.position = "absolute";
+			document.getElementsByTagName("body")[0].appendChild(ScriptHolder);
+			
+			
+			// Start the play timer
+			setTimeout(Ping, 1000);
+		};
 				
 		Playtomic.Log = {
-				
+							
 			/**
 			 * Logs a view and initializes the API.  You must do this first before anything else!
 			 * @param	swfid		Your game id from the Playtomic dashboard
@@ -182,85 +325,38 @@ var Playtomic = {};
 			 */
 			View: function(swfid, guid, apikey, defaulturl)
 			{
-				// game credentials
-				if(SWFID > 0)
-					return;
-	
-				SWFID = swfid;
-				GUID = guid;
-				Enabled = true;
-	
-				if(SWFID == 0 || GUID == "")
-				{
-					Enabled = false;
-					return;
-				}
-						
-				// game & api urls
-				SourceUrl = defaulturl ? defaulturl.toString() : document.location.toString();
-				
-				if(SourceUrl == null || SourceUrl == "" || SourceUrl.indexOf("http://") != 0)
-					SourceUrl = "http://localhost/";
-				
-				BaseUrl = SourceUrl.split("://")[1];
-				
-				if(BaseUrl.indexOf("/") > -1)
-					BaseUrl = BaseUrl.substring(0, BaseUrl.indexOf("/"));
-
-				URLStub = "http://g" + GUID + ".api.playtomic.com/";
-				URLTail = "swfid=" + SWFID + "&js=y";	
-				
-				// section & actions
-				SECTIONS = {
-					"gamevars": Encode.MD5("gamevars-" + apikey),
-					"geoip": Encode.MD5("geoip-" + apikey),
-					"leaderboards": Encode.MD5("leaderboards-" + apikey),
-					"playerlevels": Encode.MD5("playerlevels-" + apikey),
-					"data": Encode.MD5("data-" + apikey),
-					"parse": Encode.MD5("parse-" + apikey)						
-				};
-				
-				ACTIONS = {
-					"gamevars-load": Encode.MD5("gamevars-load-" + apikey),
-					"geoip-lookup": Encode.MD5("geoip-lookup-" + apikey),
-					"leaderboards-list": Encode.MD5("leaderboards-list-" + apikey),
-					"leaderboards-listfb": Encode.MD5("leaderboards-listfb-" + apikey),
-					"leaderboards-save": Encode.MD5("leaderboards-save-" + apikey),
-					"leaderboards-savefb": Encode.MD5("leaderboards-savefb-" + apikey),
-					"leaderboards-saveandlist": Encode.MD5("leaderboards-saveandlist-" + apikey),
-					"leaderboards-saveandlistfb": Encode.MD5("leaderboards-saveandlistfb-" + apikey),
-					"leaderboards-createprivateleaderboard": Encode.MD5("leaderboards-createprivateleaderboard-" + apikey),
-					"leaderboards-loadprivateleaderboard": Encode.MD5("leaderboards-loadprivateleaderboard-" + apikey),
-					"playerlevels-save": Encode.MD5("playerlevels-save-" + apikey),
-					"playerlevels-load": Encode.MD5("playerlevels-load-" + apikey),
-					"playerlevels-list": Encode.MD5("playerlevels-list-" + apikey),
-					"playerlevels-rate": Encode.MD5("playerlevels-rate-" + apikey),
-					"data-views": Encode.MD5("data-views-" + apikey),
-					"data-plays": Encode.MD5("data-plays-" + apikey),
-					"data-playtime": Encode.MD5("data-playtime-" + apikey),
-					"data-custommetric": Encode.MD5("data-custommetric-" + apikey),
-					"data-levelcountermetric": Encode.MD5("data-levelcountermetric-" + apikey),
-					"data-levelrangedmetric": Encode.MD5("data-levelrangedmetric-" + apikey),
-					"data-levelaveragemetric": Encode.MD5("data-levelaveragemetric-" + apikey),
-					"parse-save": Encode.MD5("parse-save-" + apikey),
-					"parse-delete": Encode.MD5("parse-delete-" + apikey),
-					"parse-load": Encode.MD5("parse-load-" + apikey),
-					"parse-find": Encode.MD5("parse-find-" + apikey)	
-				};
-				
-				// Create our script holder
-				ScriptHolder = document.createElement("div");
-				ScriptHolder.style.position = "absolute";
-				document.getElementsByTagName("body")[0].appendChild(ScriptHolder);
+				Playtomic.Initialize(swfid, guid, apikey, defaulturl);
 	
 				// Log the view (first or repeat visitor)
 				var views = GetCookie("views");
 				views++;
 				SetCookie("views", views);
 				Send("v/" + views, true);
-	
-				// Start the play timer
-				setTimeout(Ping, 60000);
+
+				
+				// PEvents
+				if(!Playtomic.PEventsEnabled)
+					return;
+
+				PData.session = GetSession();
+				PData.source = BaseUrl;
+				PData.views = views + 1;
+				PData.time = 0;
+				PData.eventnum = 0;
+				PData.location = "initialize";
+				PData.api = "flash";
+				PData.apiversion = "3.5";
+				PData.spenttotal = 0;
+				PData.spentsession = 0;
+				PData.referredby = "";
+				PData.invitedby = "";
+				PData.invitedtotal = 0;
+				PData.invitedsession = 0;
+				PData.invitedfriends = [];
+				PData.urlparams = {};
+				PData.params = {};
+				
+				SendPEvent();
 			},
 			
 			/**
@@ -277,7 +373,85 @@ var Playtomic = {};
 				Plays++;
 				Send("p/" + Plays);
 			},
+			
+			/**
+			 * Logs a PEvent.
+			 * @param	params		Any parameters you wish to include with the event such as gender, how they found your game, etc
+			 * @param	location	The player's current location (eg main menu, level 1) 
+			 */
+			PEvent: function(params, location)
+			{
+				SendPEvent(params, location);
+			},
+
+			/**
+			 * Logs a transaction in a PEvent
+			 * @param	params		Any parameters you wish to include
+			 * @param	location	The player's current location
+			 * @param	transactions	Array of transactions: {item: string, quantity: int, price: number, any other properties you want}
+			 */
+			PTransaction: function(params, location, transactions)
+			{
+				var nparams = {};
 				
+				for(var x in params)
+					nparams[x] = params[x];
+				
+				var total = 0;
+				
+				for(var i=0; i<transactions.length; i++)
+				{
+					if(!transactions[i].hasOwnProperty("item"))
+					{
+						//alert("** PEVENT ERROR ** Transaction is missing 'item'.\nThe transactions array must be {item: 'name', quantity: int, price: number, ... }");
+						return;
+					}
+					
+					if(!transactions[i].hasOwnProperty("quantity"))
+					{
+						//alert("** PEVENT ERROR ** Transaction is missing 'quantity'.\nThe transactions array must be {item: 'name', quantity: int, price: number, ... }");
+						return;
+					}
+					
+					if(!transactions[i].hasOwnProperty("price"))
+					{
+						//alert("** PEVENT ERROR ** Transaction is missing 'price'.\nThe transactions array must be {item: 'name', quantity: int, price: number, ... }");
+						return;
+					}
+					
+					total += transactions[i].price;
+				}
+				
+				nparams.transactions = transactions;
+				nparams.total = total;
+				PData.transaction = true;
+				SendPEvent(nparams, location);
+				delete(PData.transaction);
+			},
+			
+			/**
+			 * Logs an invitation in a PEvent
+			 * @param	params		Any parameters you wish to include
+			 * @param	location	The player's current location
+			 * @param	invitations	Array of friend id's invited, from Facebook or other
+			 */
+			PInvitation: function(params, location, invitations)
+			{
+				var nparams = {};
+				
+				for(var x in params)
+					nparams[x] = params[x];
+				
+				nparams.invitations = invitations;
+				nparams.total = invitations.length;
+				PData.invitation = true;
+				SendPEvent(nparams, location);
+				delete(PData.invitation);
+			},
+			
+			
+			
+							
 			/**
 			 * Logs the link results, internal use only.  The correct use is Link.Open(...)
 			 * @param	levelid		The player level id
@@ -535,6 +709,15 @@ var Playtomic = {};
 				ScriptHolder.innerHTML = "";
 				ScriptHolder.appendChild(s);
 			};
+			
+			this.SendPEvent = function(o)
+			{
+				var s = document.createElement("script");
+				s.async = true;
+				s.src = URLStub + "tracker/q.aspx?swfid=" + SWFID + "&q=" + Data.join("~") + "&url=" + SourceUrl + "&" + Math.random() + "z";
+				ScriptHolder.innerHTML = "";
+				ScriptHolder.appendChild(s);
+			};		
 		
 			this.MassQueue = function(frozenqueue)
 			{
@@ -1966,7 +2149,21 @@ var Playtomic = {};
 			request.onload = function()
 			{
 				//alert(request.responseText);
-				callback(JSON.parse(request.responseText));
+				//callback(JSON.parse(request.responseText));
+				
+				var parsed;
+				
+				try
+				{
+					parsed = JSON.parse(request.responseText);
+				}
+				catch(s)
+				{
+					callback(failvalue);
+					return;
+				}
+				
+				callback(parsed);
 			};
 
 			if(postdata != "")
@@ -1992,7 +2189,19 @@ var Playtomic = {};
 			request.onload = function()
 			{
 				//alert(request.responseText);
-				callback(JSON.parse(request.responseText));
+				var parsed;
+				
+				try
+				{
+					parsed = JSON.parse(request.responseText);
+				}
+				catch(s)
+				{
+					callback(failvalue);
+					return;
+				}
+				
+				callback(parsed);
 			};
 
 			if(postdata != "")
