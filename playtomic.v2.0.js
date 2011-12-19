@@ -228,6 +228,7 @@ var Playtomic = {};
 		Playtomic.PersistantParams = {};
 		Playtomic.PEventsEnabled = false;
 		var PData = {};
+		PData.params = {};
 		
 		/**
 		 * Sets user defined session information.  Leave parameters empty strings to use default values
@@ -491,8 +492,7 @@ var Playtomic = {};
 			PData.eventnum = 0;
 			PData.location = "initialize";
 			PData.api = "html5";
-			PData.apiversion = "1.9";
-			PData.params = {};
+			PData.apiversion = "2.0";
 			
 			SetSession();
 			SendPEvent();
