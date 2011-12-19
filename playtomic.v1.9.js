@@ -277,12 +277,14 @@ var Playtomic = {};
 			
 			if(!PData.invitedby)
 			{
-				PData.invitedby = GetCookie("invitedby");
+				var cinvited = GetCookie("invitedby");
+				PData.invitedby = cinvited == 0 ? "" : cinvited;
 			}
 			
 			if(!PData.referredby)
 			{
-				PData.referredby = GetCookie("referredby");
+				var creferred = GetCookie("referredby");
+				PData.referredby = creferred == 0 ? "" : creferred;
 			}
 		}
 		
@@ -478,6 +480,22 @@ var Playtomic = {};
 			
 			// Start the play timer
 			setInterval(Ping, 1000);
+			
+			// PEvents
+			if(!Playtomic.PEventsEnabled)
+				return;
+
+			PData.source = BaseUrl;
+			PData.views = views + 1;
+			PData.time = 0;
+			PData.eventnum = 0;
+			PData.location = "initialize";
+			PData.api = "html5";
+			PData.apiversion = "1.9";
+			PData.params = {};
+			
+			SetSession();
+			SendPEvent();
 		};
 				
 		Playtomic.Log = {
@@ -498,23 +516,6 @@ var Playtomic = {};
 				views++;
 				SetCookie("views", views);
 				Send("v/" + views, true);
-
-				
-				// PEvents
-				if(!Playtomic.PEventsEnabled)
-					return;
-
-				PData.source = BaseUrl;
-				PData.views = views + 1;
-				PData.time = 0;
-				PData.eventnum = 0;
-				PData.location = "initialize";
-				PData.api = "html5";
-				PData.apiversion = "1.9";
-				PData.params = {};
-				
-				SetSession();
-				SendPEvent();
 			},
 			
 			/**
