@@ -486,7 +486,7 @@ var Playtomic = {};
 				return;
 
 			PData.source = BaseUrl;
-			PData.views = views + 1;
+			PData.views = GetCookie("views");
 			PData.time = 0;
 			PData.eventnum = 0;
 			PData.location = "initialize";
