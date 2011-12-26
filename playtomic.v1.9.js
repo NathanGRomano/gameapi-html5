@@ -2017,7 +2017,6 @@ var Playtomic = {};
 
 			var po = new Playtomic.PFObject();
 			po.ClassName = postdata.classname;
-			po.ObjectId = data.id;
 			po.Password = postdata.password;
 			
 			for(var key in postdata)

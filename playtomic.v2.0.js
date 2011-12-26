@@ -110,7 +110,7 @@ var Playtomic = {};
 			PData.timebefore = PData.time;
 			PData.time = PTime;
 			PData.eventnum++;
-			PData.params = params;
+			PData.params = params == null ? {} : params;
 			
 			for(var x in Playtomic.PersistantParams)
 				PData.params[x] = Playtomic.PersistantParams[x];
@@ -553,8 +553,11 @@ var Playtomic = {};
 			{
 				var nparams = {};
 				
-				for(var x in params)
-					nparams[x] = params[x];
+				if(params != null) {
+					for(var x in params) {
+						nparams[x] = params[x];
+					}
+				}
 				
 				var total = 0;
 				
@@ -598,8 +601,11 @@ var Playtomic = {};
 			{
 				var nparams = {};
 				
-				for(var x in params)
-					nparams[x] = params[x];
+				if(params != null) {
+					for(var x in params) {
+						nparams[x] = params[x];
+					}
+				}
 				
 				nparams.invitations = invitations;
 				nparams.total = invitations.length;
@@ -2017,7 +2023,6 @@ var Playtomic = {};
 
 			var po = new Playtomic.PFObject();
 			po.ClassName = postdata.classname;
-			po.ObjectId = data.id;
 			po.Password = postdata.password;
 			
 			for(var key in postdata)
