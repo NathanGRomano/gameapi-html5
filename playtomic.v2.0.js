@@ -40,6 +40,7 @@ var Playtomic = {};
 	var GUID = "";
 	var Enabled = true;
 	var SourceUrl = "";
+	var UseSSL = false;
 	var BaseUrl = "";
 	var APIUrl = "";
 	var APIKey = "";
@@ -398,6 +399,15 @@ var Playtomic = {};
 				return str;
 			}
 		}
+		
+		/**
+		 * Sets the API to use HTTPS for all communication.  This is a premium feature, if you are not a premium user this
+		 * will not work.
+		 */
+		Playtomic.SetSSL = function()
+		{
+			UseSSL = true;
+		}
 
 		/**
 		 * Initializes the API without sending a View.  This is for page-based sites and applications without a single persistant page
@@ -433,7 +443,7 @@ var Playtomic = {};
 			if(BaseUrl.indexOf("/") > -1)
 				BaseUrl = BaseUrl.substring(0, BaseUrl.indexOf("/"));
 
-			URLStub = "http://g" + GUID + ".api.playtomic.com/";
+			URLStub = (UseSSL ? "https://g" : "http://g") + GUID + ".api.playtomic.com/";
 			URLTail = "swfid=" + SWFID + "&js=y";	
 			
 			// section & actions
@@ -613,9 +623,6 @@ var Playtomic = {};
 				SendPEvent(nparams, location);
 				delete(PData.invitation);
 			},
-			
-			
-			
 							
 			/**
 			 * Logs the link results, internal use only.  The correct use is Link.Open(...)
