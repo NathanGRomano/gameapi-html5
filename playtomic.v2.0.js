@@ -458,6 +458,7 @@ var Playtomic = {};
 			
 			ACTIONS = {
 				"gamevars-load": Encode.MD5("gamevars-load-" + apikey),
+				"gamevars-loadsingle": Encode.MD5("gamevars-loadsingle-" + apikey),
 				"geoip-lookup": Encode.MD5("geoip-lookup-" + apikey),
 				"leaderboards-list": Encode.MD5("leaderboards-list-" + apikey),
 				"leaderboards-listfb": Encode.MD5("leaderboards-listfb-" + apikey),
@@ -1891,11 +1892,24 @@ var Playtomic = {};
 		{
 			/**
 			 * Loads your GameVars 
-			 * @param	callback	Your function to receive the data:  callback(gamevars:Object, response:Response);
+			 * @param	callback	Your function to receive the data:  callback(gamevars, response);
 			 */		
 			Load: function(callback)
 			{		
 				SendAPIRequest(SECTIONS["gamevars"], ACTIONS["gamevars-load"], LoadComplete, callback, null);
+			},
+			
+			/**
+			 * Loads a single GameVar
+			 * @param	name	The GameVar to load
+			 * @param callback	Your function receive the data:  callback(gamevars, response);
+			 */
+			LoadSingle: function(name, callback)
+			{
+				var postdata = {};
+				postdata.name = name;
+				
+				SendAPIRequest(SECTIONS["gamevars"], ACTIONS["gamevars-loadsingle"], LoadComplete, callback, postdata);
 			}
 		};
 		
