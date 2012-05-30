@@ -120,10 +120,10 @@ var Playtomic = {};
 			var request = window.XDomainRequest ? new XDomainRequest() : new XMLHttpRequest(); 
 			var url = URLStub + "tracker/p.aspx?" + URLTail + "&" + Math.random() + "Z";
 			
-			request.onerror = function()
+			/*request.onerror = function()
 			{
 				complete(callback, postdata, {}, Response(0, 1));
-			};
+			};*/
 
 			request.onload = function()
 			{
@@ -152,10 +152,10 @@ var Playtomic = {};
 			var request = window.XDomainRequest ? new XDomainRequest() : new XMLHttpRequest(); 
 			var url = URLStub + "tracker/r.aspx?" + URLTail + "&" + Math.random() + "Z";
 			
-			request.onerror = function()
+			/*request.onerror = function()
 			{
 				complete(callback, postdata, {}, Response(0, 1));
-			};
+			};*/
 
 			request.onload = function()
 			{
