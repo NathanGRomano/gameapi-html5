@@ -29,7 +29,7 @@ way to implement something.
 Don't use crazy characters in your metric, level, leaderboard table etc 
 names.  A very good idea is to use the same naming conventions for variables:
 
-- alphanumeric
+- alphanumeric 
 - keep them short (50 chars is the max)
 
 Play time, country and source information is handled automatically, you do not 
