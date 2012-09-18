@@ -135,7 +135,8 @@ to the destination!
 #### Leaderboards, level sharing, data and geoip 
 This stuff gets a little more complicated.  Please check the documentation 
 for examples:
-https://playtomic.com/api/as2
+
+- https://playtomic.com/api/html5
 	
 ##### LICENSE & DISCLAIMER
 Copyright (c) 2011 Playtomic Inc.  Playtomic APIs and SDKs are licensed 
