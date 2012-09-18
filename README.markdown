@@ -5,17 +5,17 @@ This file is the official Playtomic API for HTML5 games.
 Playtomic is a real time analytics platform for casual games and services 
 that go in casual games.  If you haven't used it before check it out:
 
-  https://playtomic.com/
+  - https://playtomic.com/
 
 Documentation is available at:
 
-  https://playtomic.com/api/html5
+  - https://playtomic.com/api/html5
 
 Support is available at:
 	
-  https://playtomic.com/community
-  https://playtomic.com/issues
-  https://playtomic.com/support has more options if you're a premium user
+  - https://playtomic.com/community
+  - https://playtomic.com/issues
+  - https://playtomic.com/support has more options if you're a premium user
 	
 	
 You may modify this SDK if you wish but be kind to our servers.  Be
