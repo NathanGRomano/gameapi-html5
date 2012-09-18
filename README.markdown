@@ -1,83 +1,76 @@
-Playtomic HTML5 API
--------------------------------------------------------------------------
-This file is part of the official Playtomic API for HTML5 games using
-JavaScript.  Playtomic is a real time analytics platform for casual 
-games  and services that go in casual games.  If you haven't used it 
-before check it out:
+# Playtomic HTML5 API
 
-http://playtomic.com/
+This file is the official Playtomic API for HTML5 games.
 
-Created by ben at the above domain on 2/25/11.
-Copyright 2011 Playtomic LLC. All rights reserved.
+Playtomic is a real time analytics platform for casual games and services 
+that go in casual games.  If you haven't used it before check it out:
+
+  https://playtomic.com/
 
 Documentation is available at:
 
-http://playtomic.com/api/html5
-PLEASE NOTE:
+  https://playtomic.com/api/html5
+
+Support is available at:
+	
+  https://playtomic.com/community
+  https://playtomic.com/issues
+  https://playtomic.com/support has more options if you're a premium user
+	
+	
 You may modify this SDK if you wish but be kind to our servers.  Be
 careful about modifying the analytics stuff as it may give you 
 borked reports.
 
-If you make any awesome improvements feel free to let us know!
+Pull requests are welcome if you spot a bug or know a more efficient
+way to implement something.
 
--------------------------------------------------------------------------
-THIS SOFTWARE IS PROVIDED BY PLAYTOMIC, LLC "AS IS" AND ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
--------------------------------------------------------------------------
-GENERAL NOTES
--------------------------------------------------------------------------
+### General notes
 Don't use crazy characters in your metric, level, leaderboard table etc 
 names.  A very good idea is to use the same naming conventions for variables:
 
-    - alphanumeric
-    - keep them short (50 chars is the max)
+- alphanumeric
+- keep them short (50 chars is the max)
 
 Play time, country and source information is handled automatically, you do not 
 need to do anything to collect that data.
 
+Begin by initializing the API, and then log any metrics you want.  Play time,
+repeat visitors etc are handled automatically.
 
-Begin by logging a view which initializes the API, and then log any metrics you 
-want.  Play time, repeat visitors etc are handled automatically.
+Certain versions of this API are frozen and hosted for embedding in games or
+apps if necessary, at:
 
-You can embed the HTML5 API directly from our servers:
+  https://api.playtomic.com/js/playtomic.vX.js
+  https://api.playtomic.com/js/playtomic.vX.min.js
 
-http://api.playtomic.com/js/playtomic.v1.1.js
-
-For more current versions refer to the documentation.
-
-
--------------------------------------------------------------------------
-Logging a view
--------------------------------------------------------------------------
+#### Logging views and plays
 Call this at the very start of your game loading:
 
-	Playtomic.Log.View(swfid, guid, defaulturl)
+	Playtomic.Initialize(swfid, guid, apikey, defaulturl)
 	
 		swfid = from your API page in Playtomic
 		guid = from your API page in Playtomic
-		defaulturl = path to the game, should be document.location;
+		apikey = from your API page in Playtomic
+		defaulturl = document.location or a url (fake if necessary)
+
+Some Playtomic APIs log the view automatically as part of the initialization
+but this one does not since the HMTL5 API can be embedded on websites to
+complement a game (eg embedded scores, levels or data).
+
+Log the view after you initialize:
+
+    Playtomic.Log.View();
 
 This registers that the player has viewed your game and initializes the
 API.  You can track when the player actually starts playing (eg play button)
 by calling this 0 or more times in your game:
 
 	Playtomic.Log.Play();
+	
+Log.Play can be called multiple times in a single session.
 
-
--------------------------------------------------------------------------
-CUSTOM METRICS
--------------------------------------------------------------------------
-
+#### Custom metrics
 Custom metrics can track any general events you want to follow, like 
 tracking who views your credits screen or anything else.
 
@@ -89,11 +82,7 @@ Call this to log any custom data you want to track.
 		group = optional, specify the group name for sorting in reports
 		unique = optional, only count unique occurrences 
 
-
--------------------------------------------------------------------------
-LEVEL METRICS
--------------------------------------------------------------------------
-
+#### Level metrics
 Level metrics can identify problems players are having with your difficulty 
 or anything else by logging information like how many people begin vs. finish
 each level.  They can help you identify major problems in your player retention.
@@ -125,24 +114,15 @@ Playtomic.Log.LevelAverageMetric(name, level, value, unique)
 	value = the value you want to track
 	unique = optional, only count unique-per-view occurrences 
 
-
--------------------------------------------------------------------------
-LINK TRACKING
--------------------------------------------------------------------------
-
+#### Link tracking
 Link tracking can give you information on how many people click the links 
 in your games, including (Flash only) identifying sites that block links.
 
 Playtomic.Link.Open(url, name, group)
 
-	url = "http://playtomic.com/"
+	url = "https://playtomic.com/"
 	name = link name
 	group = specify the group name for this link (eg "sponsorlinks")
-	
-If you want to open the URL yourself (eg using an A tag) you can track the 
-clicks using:
-
-Playtomic.Link.Track(url, name, group)
 
 When you track links it automatically tracks the source and country for deep 
 analysis in the dashboard, and it automatically tracks domain totals so if 
@@ -152,8 +132,12 @@ as well as the total uniques, clicks and fails for that domain.
 The link tracking API does not alter the URL at all, players still go directly 
 to the destination!
 
--------------------------------------------------------------------------
-LEADERBOARDS, LEVEL SHARING, DATA AND GEOIP
--------------------------------------------------------------------------
-This stuff gets a little more complicated.  Please check the documentation at
-http://playtomic.com/api/html5
+#### Leaderboards, level sharing, data and geoip 
+This stuff gets a little more complicated.  Please check the documentation 
+for examples:
+https://playtomic.com/api/as2
+	
+##### LICENSE & DISCLAIMER
+Copyright (c) 2011 Playtomic Inc.  Playtomic APIs and SDKs are licensed 
+under the MIT license.  Certain portions may come from 3rd parties and 
+carry their own licensing terms and are referenced where applicable.
