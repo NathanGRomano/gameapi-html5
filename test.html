@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>Playtomic HTML/JavaScript API Test</title>
+	<style>
+	* { padding: 0px; margin: 0px; font-size: 11px; list-style-type: none; font-family: Verdana, Arial, sans-serif; }
+	body { padding: 10px; background-color: #EEE; }
+	button { padding: 4px; }
+	ul { margin-bottom: 8px; }
+	h2 { margin-bottom: 2px; }
+	input { padding: 2px; background-color: #FFF; border: 1px solid #999; }
+	table { margin-bottom: 4px; }
+	th { text-align: left; font-weight: normal; color: #666; }
+	p { margin-bottom: 6px; }
+	li { margin-bottom: 6px; display: block; }
+	h3 { margin: 2px 0px; color: #333; }
+	ul.list { margin: 6px 0px 6px 10px; }
+	strong { color: #33C; }
+	strong.error { color: #900; }
+	</style>
+</head>
+<body>
+
+	<div id="playtomic_debug"></div>
+
+	<script type="text/javascript" src="playtomic.v2.2.js"></script>
+	<script type="text/javascript">
+
+
+	function d(o) 
+	{ 
+		return document.getElementById(o); 
+	}
+	
+	function trace(message)
+	{
+		d("playtomic_debug").innerHTML += message + "<br />";
+	}
+
+	Playtomic.PEventsEanbled = true;
+	Playtomic.Log.View(4277, "0c00e714e083408f", "60574a8152ec49ceb1cc61e90441ab", "http://as3test.com/");
+
+	//Playtomic.Log.PEvent({}, "loaded");
+	//Playtomic.Log.PTransaction({}, "test", [{item: "asf", price: 1.99, quantity: 2}]);
+	//Playtomic.Log.PInvitation({}, "test2", [123456, 234567, 345678, 456789]);
+
+	//Playtomic.Log.LevelCounterMetric("counter", 1);
+	//Playtomic.Log.LevelAverageMetric("average", 1, 100);
+	//Playtomic.Log.LevelRangedMetric("ranged", 1, 25);
+
+	//TestGameVars();
+	//TestGeoIP();
+	//TestLeaderboards();
+	//TestData();
+	//TestPlayerLevels();
+	//TestParse();
+	
+	// Parse tests
+	function TestParse()
+	{
+		alert("TestParse");
+		var po = new Playtomic.PFObject();
+		po.ClassName = "temp";
+		po.ObjectId = "ZtvYg8lRh6";
+		po.Data.a = "783";
+		po.Data.b = "999";
+		Playtomic.Parse.Save(po, ParseSaveComplete);
+		
+		var pq = new Playtomic.PFQuery();
+		pq.ClassName = "temp";
+		//Playtomic.Parse.Find(pq, ParseFindComplete);
+		
+		//Playtomic.Parse.Load("FyHB6dbSZR", "temp", ParseLoadComplete);
+		
+		var pd = new Playtomic.PFObject();
+		pd.ObjectId = "iqSfVBDKTW";
+		pd.ClassName = "temp";
+		//Playtomic.Parse.Delete(pd, ParseDeleteComplete);
+	}
+	
+	function ParseSaveComplete(po, response)
+	{
+		trace("ParseSaveComplete");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		trace("    -> id: " + po.ObjectId);
+	}
+	
+	function ParseFindComplete(arr, response)
+	{
+		trace("ParseFindComplete");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		
+		for(var i=0; i<arr.length; i++)
+			trace("    -> id: " + arr[i].ObjectId);
+	}
+	
+	function ParseLoadComplete(po, response)
+	{
+		trace("ParseLoadComplete");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		trace("    -> id: " + po.ObjectId);
+	}
+	
+	function ParseDeleteComplete(response)
+	{
+		trace("ParseDeleteComplete");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+	}
+	
+	// GameVar tests
+	function TestGameVars()
+	{
+		Playtomic.GameVars.Load(GameVarsLoaded);
+	}
+	
+	function GameVarsLoaded(gamevars, response)
+	{
+		trace("GameVarsLoaded");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		
+		for(x in gamevars)
+		{
+			trace("   -> " + x + " = " + gamevars[x]);
+		}
+	}
+	
+	// GeoIP tests
+	function TestGeoIP()
+	{
+		Playtomic.GeoIP.Lookup(GeoIPLoaded);
+	}
+	
+	function GeoIPLoaded(data, response)
+	{
+		trace("GeoIPLoaded");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		trace("   -> " + data.Name + " / " + data.Code);
+	}
+	
+	// Leaderboard tests
+	function TestLeaderboards()
+	{
+		var score = {};
+		score.Name = "ben";
+		score.Points = Math.floor(10000 * Math.random());
+		score.CustomData = {};
+		score.CustomData.Level = 1;
+		//Playtomic.Leaderboards.Save(score, "highscores", LeaderboardSaved, {highest: true});
+		
+		//Playtomic.Leaderboards.List("highscores", LeaderboardsList);
+		
+		var score2 = {};
+		score2.Name = "benunique";
+		score2.Points = 35000 + Math.floor(Math.random() * 10000);
+		score2.CustomData = {};
+		score2.CustomData.Level = 1;
+		Playtomic.Leaderboards.SaveAndList(score2, "highscores", LeaderboardsSaveAndList, {highest: true, perpage: 10});
+
+		//Playtomic.Leaderboards.CreatePrivateLeaderboard("ben", "http://ben.com/?leaderboard=", LeaderboardCreated, true);
+		//Playtomic.Leaderboards.LoadPrivateLeaderboard("4e2fa7e31b193607d4f6a564", LeaderboardPrivateLoaded);
+	}
+
+	function LeaderboardSaved(response)
+	{
+		trace("LeaderboardSaved");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+	}
+	
+	function LeaderboardCreated(leaderboard, response)
+	{
+		trace("LeaderboardCreated");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		
+		for(var x in leaderboard)
+			trace("    -> " + x + ": " + leaderboard[x]);
+	}
+	
+	function LeaderboardsList(arr, numresults, response)
+	{
+		trace("LeaderboardLoaded");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		
+		trace("    -> numscores: " + numresults);
+		
+		for(var i=0; i<arr.length; i++)
+			trace("    ->  result " + i + ": " + arr[i].Name + "\t" + arr[i].Points);
+	}
+	
+	function LeaderboardsSaveAndList(arr, numresults, response)
+	{
+		trace("LeaderboardsSaveAndList");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		
+		trace("    -> numscores: " + numresults);
+		
+		for(var i=0; i<arr.length; i++)
+			trace("    ->  result " + i + ": " + (arr[i].SubmittedOrBest ? " (best) " : "") + arr[i].Name + "\t" + arr[i].Points);
+	}
+	
+	function LeaderboardPrivateLoaded(leaderboard, response)
+	{
+		trace("LeaderboardPrivateLoaded");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		
+		for(var x in leaderboard)
+			trace("    -> " + x + ": " + leaderboard[x]);
+	}
+	
+	// data tests
+	function TestData()
+	{
+		Playtomic.Data.Views(DataLoaded);
+		//Playtomic.Data.LevelCounterMetric("asdf", 1, DataLoaded);
+	}
+	
+	function DataLoaded(data, response)
+	{
+		trace("DataLoaded");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		
+		for(var x in data)
+			trace("    -> " + x + ": " + data[x]);
+	}
+	
+	// player levels
+	function TestPlayerLevels()
+	{
+		Playtomic.PlayerLevels.List(LevelsLoaded);
+		
+		var level = {};
+		level.Name = "test2" + Math.random();
+		level.Data = "leveldata2" + Math.random();
+		level.PlayerName = "Guest";
+		Playtomic.PlayerLevels.Save(level, LevelSaved);
+		
+		//Playtomic.PlayerLevels.Rate("4e2fb1e21b193607d4f6a569", 10, LevelRated);
+		
+		//Playtomic.PlayerLevels.Load("4e2fb1e21b193607d4f6a569", LevelLoaded);
+	}
+	
+	function LevelLoaded(level, response)
+	{
+		trace("LevelLoaded");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		trace("    -> levelid: " + level.LevelId);
+	}
+	
+	function LevelRated(response)
+	{
+		trace("LevelRated");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+	}
+	
+	function LevelSaved(levelid, response)
+	{
+		trace("LevelSaved");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		trace("    -> levelid: " + levelid);
+	}
+	
+	function LevelsLoaded(arr, numresults, response)
+	{
+		trace("LevelsLoaded");
+		trace(" > success ? " + response.Success);
+		trace(" > errorcode ? " + response.ErrorMessage);
+		trace("    -> numlevels: " + numresults);
+		
+		for(var i=0; i<arr.length; i++)
+			trace("    ->  result " + i + ": " + arr[i].Name);
+	}
+
+	
+	
+	
+	
+	
+	</script>
+
+</body>
+</html>
