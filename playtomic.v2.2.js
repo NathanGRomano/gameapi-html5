@@ -214,23 +214,37 @@ var Playtomic = {};
 		}
 		
 		/**
-		 * Saves a cookie value
+		 * Saves a localStorage or cookie value
 		 * @param	key		The key (views, plays)
 		 * @param	value	The value
 		 */
 		function SetCookie(key, value)
 		{
-			var expires = new Date();
-			expires.setDate(expires.getDate() + 30);
-			document.cookie = key + "=" + escape(value) + ";expires=" + expires.toUTCString();
+			if(localStorage)
+			{
+				localStorage.setItem(key, value);
+				return;
+			}
+			
+			if(document)
+			{
+				var expires = new Date();
+				expires.setDate(expires.getDate() + 30);
+				document.cookie = key + "=" + escape(value) + ";expires=" + expires.toUTCString();
+			}
 		}
 
 		/**
-		 * Gets a cookie value
+		 * Gets a localStorage or cookie value
 		 * @param	key		The key (views, plays)
 		 */
 		function GetCookie(key)
 		{
+			if(localStorage)
+			{
+				return localStorage[key] || 0;
+			}
+			
 			if(document.cookie.length == 0)
 				return 0;
 
@@ -458,7 +472,7 @@ var Playtomic = {};
 			}
 					
 			// game & api urls
-			SourceUrl = defaulturl ? defaulturl.toString() : document.location.toString();
+			SourceUrl = defaulturl ? defaulturl.toString() : (document ? document.location.toString() : null);
 			
 			if(SourceUrl == null || SourceUrl == "" || SourceUrl.indexOf("http://") != 0)
 				SourceUrl = "http://localhost/";
@@ -469,7 +483,11 @@ var Playtomic = {};
 				BaseUrl = BaseUrl.substring(0, BaseUrl.indexOf("/"));
 
 			URLStub = (UseSSL ? "https://g" : "http://g") + GUID + ".api.playtomic.com/";
-			URLTail = "swfid=" + SWFID + "&js=y";	
+			URLTail = "swfid=" + SWFID + "&js=y";
+
+            // debugging
+            //URLStub = "http://127.0.0.1:3000/";
+            //URLTail = "swfid=" + SWFID + "&guid=" + GUID + "&js=y&debug=yes";
 			
 			// section & actions
 			SECTIONS = {
@@ -510,10 +528,10 @@ var Playtomic = {};
 				"parse-find": Encode.MD5("parse-find-" + apikey)	
 			};
 			
-			// Create our script holder
-			ScriptHolder = document.createElement("div");
-			ScriptHolder.style.position = "absolute";
-			document.getElementsByTagName("body")[0].appendChild(ScriptHolder);
+			// Create our script holder (not necesary now)
+			//ScriptHolder = document.createElement("div");
+			//ScriptHolder.style.position = "absolute";
+			//document.getElementsByTagName("body")[0].appendChild(ScriptHolder);
 			
 			// Start the play timer
 			setInterval(Ping, 1000);
@@ -2261,12 +2279,11 @@ var Playtomic = {};
 	function SendAPIRequest(section, action, complete, callback, postdata)
 	{
 		var url = URLStub + "v3/api.aspx?" + URLTail + "&r=" + Math.random() + "Z";
+        url = "http://127.0.0.1:3000/v3/api.aspx?swfid=940628&guid=b7101c2a073d4e59&js=y&debug=yes";
 		var timestamp = String(new Date().getTime()).substring(0, 10);
 		var nonce = Encode.MD5(new Date().getTime() * Math.random() + GUID);
 		
-		var pd = new Array();
-		pd.push("nonce=" + nonce);
-		pd.push("timestamp=" + timestamp);
+		var pd = ["nonce=" + nonce, "timestamp=" + timestamp];
 		
 		for(var key in postdata)
 			pd.push(key + "=" + Escape(postdata[key]));
