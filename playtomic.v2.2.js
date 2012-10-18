@@ -1494,7 +1494,7 @@ var Playtomic = {};
 				
 				if(facebook)
 				{
-					var friendslist = options.friendslist ? options.friendslist : [];
+					var friendslist = listoptions.friendslist ? listoptions.friendslist : [];
 					
 					if(friendslist.length > 0)
 					{
@@ -2279,7 +2279,7 @@ var Playtomic = {};
 	function SendAPIRequest(section, action, complete, callback, postdata)
 	{
 		var url = URLStub + "v3/api.aspx?" + URLTail + "&r=" + Math.random() + "Z";
-        url = "http://127.0.0.1:3000/v3/api.aspx?swfid=940628&guid=b7101c2a073d4e59&js=y&debug=yes";
+        //url = "http://127.0.0.1:3000/v3/api.aspx?swfid=940628&guid=b7101c2a073d4e59&js=y&debug=yes";
 		var timestamp = String(new Date().getTime()).substring(0, 10);
 		var nonce = Encode.MD5(new Date().getTime() * Math.random() + GUID);
 		
